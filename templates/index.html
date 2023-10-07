@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Scanner</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <h2>Port Scanner</h2>
+    <form id="scanForm">
+        <label for="target">Enter Target:</label>
+        <input type="text" id="target" name="target" placeholder="IP or Domain">
+        <input type="submit" value="Scan">
+    </form>
+    <div id="loading" style="display:none;">Scanning...</div>
+    <table id="resultsTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>PORT</th>
+                <th>STATE</th>
+                <th>SERVICE</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Results will be inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        $("#scanForm").submit(function (e) {
+            e.preventDefault();
+            let target = $("#target").val();
+            $("#loading").show();
+            $.post("/scan", { target: target }, function (data) {
+                let tableBody = $("#resultsTable tbody");
+                tableBody.empty();
+
+                data.open_ports_details.forEach(detail => {
+                    let serviceInfo = detail.service || "Unknown";
+                    tableBody.append(
+                        `<tr>
+                            <td>${detail.port}/tcp</td>
+                            <td>${detail.state}</td>
+                            <td>${serviceInfo}</td>
+                        </tr>`
+                    );
+                });
+                
+                $("#resultsTable").show();
+                $("#loading").hide();
+            });
+        });
+    </script>
+</body>
+
+</html>
