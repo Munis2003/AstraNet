@@ -12,50 +12,101 @@
 </head>
 
 <body>
-    <h2>Port Scanner</h2>
-    <form id="scanForm">
-        <label for="target">Enter Target:</label>
-        <input type="text" id="target" name="target" placeholder="IP or Domain">
-        <input type="submit" value="Scan">
-    </form>
-    <div id="loading" style="display:none;">Scanning...</div>
-    <table id="resultsTable" style="display:none;">
-        <thead>
-            <tr>
-                <th>PORT</th>
-                <th>STATE</th>
-                <th>SERVICE</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Results will be inserted here -->
-        </tbody>
-    </table>
+
+    <div class="container" style="padding-right: 72px;">
+        <h2>Port Scanner</h2>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-section">
+                    <form id="scanForm">
+                        <!-- ... [form contents remain unchanged] ... -->
+                        <div class="form-group">
+                            <label for="target">Enter Target:</label>
+                            <input type="text" class="form-control" id="target" name="target"
+                                placeholder="IP or Domain">
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <label for="startPort">Start Port:</label>
+                                <input type="number" class="form-control" id="startPort" name="startPort"
+                                    placeholder="Start Port" value="1">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endPort">End Port:</label>
+                                <input type="number" class="form-control" id="endPort" name="endPort"
+                                    placeholder="End Port" value="1024">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Scan</button>
+                    </form>
+                </div>
+
+
+                <div class="description-section">
+                    <p>
+                        Discover open doors on any website with our Port Scanner! Plus, peek inside to see the
+                        computer's operating system. It's like having a digital magnifying glass: easy, insightful, and
+                        protective.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6" style="margin-top: -570px; margin-left: 635px; padding-top: 13px;">
+
+                <div class="table-section">
+                    <div id="loading" style="display: none; text-align: center;">
+                        <p>Scanning for open ports.. </p>
+                    </div>
+                    <table id="resultsTable" style="display:none;">
+                        <h3 style="margin-bottom: 0px; margin-top: 0px; padding-right: 487px;">Result :</h3>
+                        <!-- ... [table contents remain unchanged] ... -->
+                        <thead>
+                            <tr>
+                                <th>PORT</th>
+                                <th>STATE</th>
+                                <th>SERVICE</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p id="osGuess">OS: Unknown</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <script>
         $("#scanForm").submit(function (e) {
             e.preventDefault();
-            let target = $("#target").val();
+            const target = $("#target").val();
+            const startPort = $("#startPort").val();
+            const endPort = $("#endPort").val();
             $("#loading").show();
-            $.post("/scan", { target: target }, function (data) {
-                let tableBody = $("#resultsTable tbody");
+            $.post("/scan", { target, startPort, endPort }, function (data) {
+                const tableBody = $("#resultsTable tbody");
                 tableBody.empty();
 
                 data.open_ports_details.forEach(detail => {
-                    let serviceInfo = detail.service || "Unknown";
+                    const serviceInfo = detail.service || "Unknown";
                     tableBody.append(
                         `<tr>
-                            <td>${detail.port}/tcp</td>
-                            <td>${detail.state}</td>
-                            <td>${serviceInfo}</td>
-                        </tr>`
+                    <td>${detail.port}/tcp</td>
+                    <td>${detail.state}</td>
+                    <td>${serviceInfo}</td>
+                </tr>`
                     );
                 });
-                
+
+                // Update OS guess
+                $("#osGuess").text("OS: " + data.os_guess);
+
                 $("#resultsTable").show();
                 $("#loading").hide();
             });
         });
+
     </script>
 </body>
 
