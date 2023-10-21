@@ -49,7 +49,7 @@ def get_service_name(port):
 def scan_port(target, port):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(0.3)
+            s.settimeout(0.5)
             s.connect((target, port))
             service_name = get_service_name(port)
             state = "open"
