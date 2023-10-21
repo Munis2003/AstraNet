@@ -7,35 +7,37 @@
     <title>Port Scanner</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@1,900,700,500,301,300,501,401,901,400,2&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 
 <body>
 
-    <div class="container" style="padding-right: 72px;">
+    <div class="container">
         <h2>Port Scanner</h2>
 
         <div class="row">
             <div class="col-md-6">
                 <div class="form-section">
                     <form id="scanForm">
-                        <!-- ... [form contents remain unchanged] ... -->
                         <div class="form-group">
                             <label for="target">Enter Target:</label>
-                            <input type="text" class="form-control" id="target" name="target"
-                                placeholder="IP or Domain">
+                            <input type="text" class="form-control" id="target" name="target" placeholder="IP or Domain"
+                                style=" padding-right: 0px; padding-left: 5px; padding-bottom: 0px; padding-top: 1px;"
+                                required>
                         </div>
                         <div class="form-row">
-                            <div class="col-md-6">
+                            <div class="col-md-6" style="padding-left: 0px;">
                                 <label for="startPort">Start Port:</label>
                                 <input type="number" class="form-control" id="startPort" name="startPort"
-                                    placeholder="Start Port" value="1">
+                                    placeholder="Start Port" value="1" style=" padding-right: 0px; padding-left: 5px; padding-bottom: 0px; padding-top: 1px;">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" style="padding-left: 0px;">
                                 <label for="endPort">End Port:</label>
                                 <input type="number" class="form-control" id="endPort" name="endPort"
-                                    placeholder="End Port" value="1024">
+                                    placeholder="End Port" value="1024" style=" padding-right: 0px; padding-left: 5px; padding-bottom: 0px; padding-top: 1px;">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-dark">Scan</button>
@@ -54,12 +56,12 @@
 
             <div class="col-md-6" style="margin-top: -570px; margin-left: 635px; padding-top: 13px;">
 
-                <div class="table-section">
+                <div class="table-section" style="margin-top: 48px;">
                     <div id="loading" style="display: none; text-align: center;">
-                        <p>Scanning for open ports.. </p>
+                        <p>Scanning for open ports... </p>
                     </div>
                     <table id="resultsTable" style="display:none;">
-                        <h3 style="margin-bottom: 0px; margin-top: 0px; padding-right: 487px;">Result :</h3>
+                        <h3>Open Ports :</h3>
                         <!-- ... [table contents remain unchanged] ... -->
                         <thead>
                             <tr>
@@ -70,7 +72,7 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <p id="osGuess">OS: Unknown</p>
+                    <p id="osGuess"><b>Operating System : </b> Unknown</p>
                 </div>
             </div>
         </div>
@@ -100,7 +102,7 @@
                 });
 
                 // Update OS guess
-                $("#osGuess").text("OS: " + data.os_guess);
+                $("#osGuess").text("Operating System : " + data.os_guess);
 
                 $("#resultsTable").show();
                 $("#loading").hide();
