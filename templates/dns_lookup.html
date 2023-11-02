@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Lookup</title>
+</head>
+<body>
+    
+    <h2>DNS Lookup</h2>
+    <form id="dnsLookupForm">
+        <label for="domain">Enter Domain:</label>
+        <input type="text" id="domain" name="domain" placeholder="example.com" required>
+        <button type="submit">Lookup</button>
+    </form>
+    <div id="results"></div>
+
+    <h2>Reverse DNS Lookup</h2>
+<form id="reverseDnsForm">
+    <label for="ip_address">Enter IP Address:</label>
+    <input type="text" id="ip_address" name="ip_address" placeholder="8.8.8.8" required>
+    <button type="submit">Lookup</button>
+</form>
+<div id="reverseResults"></div>
+
+    <!-- Include jQuery for making AJAX requests -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Function to handle form submission
+        $("#dnsLookupForm").submit(function (e) {
+            e.preventDefault(); // Prevent the form from actually submitting
+
+            const domain = $("#domain").val();
+
+            // Make an AJAX POST request to the server
+            $.post("/execute-dns-lookup", { domain }, function (data) {
+                // Check if an error occurred
+                if (data.error) {
+                    $("#results").html("Error: " + data.error);
+                } else {
+                    // Display the IP addresses
+                    const resultHtml = "<strong>IP Addresses:</strong><br>" + data.addresses.join("<br>");
+                    $("#results").html(resultHtml);
+                }
+            });
+        });
+
+        $("#reverseDnsForm").submit(function (e) {
+        e.preventDefault();
+        const ip_address = $("#ip_address").val();
+        
+        $.post("/reverse-dns", { ip_address }, function (data) {
+            if (data.success) {
+                $("#reverseResults").text("Hostname: " + data.hostname);
+            } else {
+                $("#reverseResults").text(data.message);
+            }
+        });
+    });
+    </script>
+</body>
+</html>

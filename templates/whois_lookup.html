@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHOIS Lookup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='whois_lookup.css') }}">
+    <link rel="stylesheet" href="/static/whois_lookup.css"> 
+</head>
+<body>
+    <div class="header">
+        <h2>WHOIS Lookup</h2>
+    </div>
+    <div class="container">
+        <div class="form-container">
+            <form id="whoisLookupForm">
+                <label for="domain">Enter Domain:</label>
+                <input type="text" id="domain" name="domain" placeholder="example.com" required>
+                <button type="submit">Lookup</button>
+            </form>
+        </div>
+    </div>
+    <div class="container">
+        <div id="results"></div>
+    </div>
+    <script>
+        // Function to display the WHOIS data in a table
+        function displayData(data) {
+            const resultsDiv = document.getElementById('results');
+
+            const table = document.createElement('table');
+
+            for (const key in data) {
+                if (data[key] !== null) {
+                    const row = document.createElement('tr');
+
+                    const th = document.createElement('th');
+                    th.textContent = key;
+
+                    const td = document.createElement('td');
+                    td.textContent = JSON.stringify(data[key], null, 2);
+
+                    row.appendChild(th);
+                    row.appendChild(td);
+                    table.appendChild(row);
+                }
+            }
+
+            resultsDiv.innerHTML = ''; // Clear previous content
+            resultsDiv.appendChild(table);
+        }
+
+        document.getElementById('whoisLookupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const domain = document.getElementById('domain').value;
+
+            // Make an API request to fetch WHOIS data for the entered domain
+            fetch('/whois-lookup', {
+                method: 'POST',
+                body: new URLSearchParams({ domain }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process and display the WHOIS data in the 'results' div as a table
+                    displayData(data.whois_info);
+                });
+        });
+    </script>
+</body>
+</html>
