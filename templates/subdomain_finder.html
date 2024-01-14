@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subdomain Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='subdomain_finder.css') }}">
+<link rel="stylesheet" href="/static/subdomain_finder.css">
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo" style="padding: 0px 10px 0px 210px;">
+        
+                <h2>AstraNet</h2>
+            
+
+        </div>
+        <ul style="padding-top: 0px;padding-left: 500px;padding-right: 0px;padding-bottom: 0px;">
+            <li><a href="/">Home</a></li>
+            <li><a href="dns-lookup">DNS Lookup</a></li>
+            <li><a href="whois-lookup">WHOIS Lookup</a></li>
+            <li><a href="port-scan">Port Scanner</a></li>
+            <li><a href="directory-enumeration">Directory Enumeration</a></li>
+            <li><a href="subdomain-finder">Subdomain Finder</a></li>
+        </ul>
+    </nav>
+
+    <div id="loading-overlay">
+        <div id="loading-spinner"></div>
+    </div>
+
+    <div class="container" id="content-container">
+        <h1 class="focus-in-contract">Subdomain Finder</h1>
+        <h3 class="text-focus-in">Uncover IP Addresses and Domain Details</h3>
+        <form id="subdomain-form" onsubmit="event.preventDefault(); findSubdomains();">
+            <input type="text" id="domain" name="domain" placeholder="Enter a website" required>
+            <button type="submit">
+                <span>Scan</span>
+              </button>
+        </form>
+    </div>
+    <div class="about-container">
+        <h3>About Subdomain Finder</h3>
+        <p>
+            SubDomain Seeker is a cutting-edge tool tailored for efficiently discovering subdomains associated with a
+            given domain. With its robust capabilities, this tool proves invaluable for cybersecurity professionals and
+            ethical hackers engaged in reconnaissance and vulnerability assessment. By leveraging advanced techniques,
+            SubDomain Seeker systematically explores and identifies subdomains, providing a comprehensive overview of a
+            target's digital footprint.
+        </p>
+    </div>
+    <div class="results">
+
+        <div id="result-container"></div>
+
+    </div>
+    <script>
+      function findSubdomains() {
+    // Get the domain from the input field
+    const domain = document.getElementById('domain').value;
+
+    // Show loading overlay
+    document.getElementById('loading-overlay').style.display = 'block';
+
+    // Make a POST request to the server
+    fetch('/subdomain-finder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ domain: domain }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide loading overlay
+        document.getElementById('loading-overlay').style.display = 'none';
+
+        // Display the result in the result container as a table
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.innerHTML = `<h2>Subdomains for ${data.domain}</h2>`;
+
+        if (data.subdomains.length > 0) {
+            const table = document.createElement('table');
+            table.classList.add('results-table');
+
+            // Create table header
+            const headerRow = table.insertRow(0);
+            const headerCell = headerRow.insertCell(0);
+            headerCell.textContent = 'Subdomain';
+
+            // Create table rows
+            data.subdomains.forEach((subdomain, index) => {
+                const row = table.insertRow(index + 1);
+                const cell = row.insertCell(0);
+
+                // Create a link for the subdomain
+                const subdomainLink = document.createElement('a');
+                subdomainLink.textContent = subdomain.subdomain;
+                subdomainLink.href = '#';  // Set a placeholder href
+                subdomainLink.style.color = subdomain.is_working ? 'green' : 'red';
+
+                // Append the link to the cell
+                cell.appendChild(subdomainLink);
+            });
+
+            resultContainer.appendChild(table);
+        } else {
+            resultContainer.innerHTML += '<p>No subdomains found.</p>';
+        }
+    })
+    .catch(error => {
+        // Hide loading overlay in case of an error
+        document.getElementById('loading-overlay').style.display = 'none';
+        console.error('Error:', error);
+    });
+}
+
+    </script>
+    
+</body>
+
+</html>

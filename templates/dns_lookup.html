@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Lookup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dns_lookup.css') }}">
+    <link rel="stylesheet" type="text/css" href="/static/dns_lookup.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo" style="padding: 0px 10px 0px 210px;">
+            <h2>AstraNet</h2>
+        </div>
+        <ul style="padding-top: 0px;padding-left: 500px;padding-right: 0px;padding-bottom: 0px;">
+            <li><a href="/">Home</a></li>
+            <li><a href="dns-lookup">DNS Lookup</a></li>
+            <li><a href="whois-lookup">WHOIS Lookup</a></li>
+            <li><a href="port-scan">Port Scanner</a></li>
+            <li><a href="directory-enumeration">Directory Enumeration</a></li>
+            <li><a href="subdomain-finder">Subdomain Finder</a></li>
+        </ul>
+    </nav>
+
+    <div id="loading-overlay">
+        <div id="loading-spinner"></div>
+    </div>
+
+    <div class="container" id="content-container">
+        <h2 class="focus-in-contract">DNS Lookup</h2>
+        <h3 class="text-focus-in">Find out the IP address and other details of any domain name</h3>
+        <div class="form-container"></div>
+        <form id="dnsLookupForm">
+            <input type="text" id="domain" name="domain" placeholder="Enter Target Website" required>
+            <!-- <button type="submit">Lookup</button> -->
+            <button type="submit">
+                <span>Lookup</span>
+              </button>
+        </form>
+    </div>
+
+    <div class="about-container">
+        <h3>About DNS Lookup</h3>
+        <p>
+            Our DNS Lookup tool for our website is a simple and fast tool to check the DNS records of any website. You
+            can enter any domain name and choose the type of DNS record you want to query. The tool will display the DNS
+            records and their values for the domain name.
+        </p>
+    </div>
+
+    <div class="results-container">
+        <h2>Lookup Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function showLoadingOverlay() {
+            $("#loading-overlay").css("display", "flex");
+        }
+
+        function hideLoadingOverlay() {
+            $("#loading-overlay").css("display", "none");
+        }
+
+        // Attach click event listeners to navigation links
+        var navLinks = document.querySelectorAll('.navbar a');
+        navLinks.forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                showLoadingOverlay();
+                setTimeout(function () {
+                    hideLoadingOverlay();
+                    window.location.href = link.getAttribute('href');
+                }, 1000);
+            });
+        });
+
+        // Attach submit event listener to DNS Lookup form
+        $("#dnsLookupForm").submit(function (e) {
+            e.preventDefault();
+            const domain = $("#domain").val();
+            showLoadingOverlay();
+            $.post("/execute-dns-lookup", { domain }, function (data) {
+                hideLoadingOverlay();
+                if (data.error) {
+                    $("#results").html("<p>Error: " + data.error + "</p>");
+                } else {
+                    // Display the DNS lookup results (same code as before)
+                    // A Records, AAAA Records, CNAME Record, TXT Records, NS Records, MX Records, SOA Record
+                    let aRecordsHtml = "<h3>A Records</h3>";
+                    aRecordsHtml += "<p>IPv4 address: " + (data.a_records ? data.a_records.ipv4 : "N/A") + "</p>";
+
+                    let aaaaRecordsHtml = "<h3>AAAA Records</h3>";
+                    aaaaRecordsHtml += "<p>IPv6 address: " + (data.aaaa_records ? data.aaaa_records.join(", ") : "N/A") + "</p>";
+
+                    let cnameHtml = "<h3>CNAME Record</h3>";
+                    cnameHtml += "<p>Canonical name: " + (data.cname_records ? data.cname_records.join(", ") : "N/A") + "</p>";
+
+                    let txtRecordsHtml = "<h3>TXT Records</h3>";
+                    txtRecordsHtml += "<p>SPF record: " + (data.txt_records ? data.txt_records.join(", ") : "N/A") + "</p>";
+
+                    let nsRecordsHtml = "<h3>NS Records</h3>";
+                    if (data.ns_records) {
+                        nsRecordsHtml += "<ul>";
+                        data.ns_records.forEach(function (ns) {
+                            nsRecordsHtml += "<li>Name server: " + ns + "</li>";
+                        });
+                        nsRecordsHtml += "</ul>";
+                    } else {
+                        nsRecordsHtml += "<p>No NS records found</p>";
+                    }
+
+                    let mxRecordsHtml = "<h3>MX Records</h3>";
+                    if (data.mx_records) {
+                        mxRecordsHtml += "<ul>";
+                        data.mx_records.forEach(function (mx) {
+                            mxRecordsHtml += "<li>Mail server: " + mx.mail_server + ", Priority: " + mx.priority + "</li>";
+                        });
+                        mxRecordsHtml += "</ul>";
+                    } else {
+                        mxRecordsHtml += "<p>No MX records found</p>";
+                    }
+
+                    let soaRecordHtml = "<h3>SOA Record</h3>";
+                    if (data.soa_record) {
+                        soaRecordHtml += "<ul>";
+                        soaRecordHtml += "<li>Start of authority: " + data.soa_record.start_of_authority + "</li>";
+                        soaRecordHtml += "<li>Email: " + data.soa_record.email + "</li>";
+                        soaRecordHtml += "<li>Serial: " + data.soa_record.serial + "</li>";
+                        soaRecordHtml += "<li>Refresh: " + data.soa_record.refresh + "</li>";
+                        soaRecordHtml += "<li>Retry: " + data.soa_record.retry + "</li>";
+                        soaRecordHtml += "<li>Expire: " + data.soa_record.expire + "</li>";
+                        soaRecordHtml += "<li>Negative cache TTL: " + data.soa_record.negative_cache_ttl + "</li>";
+                        soaRecordHtml += "</ul>";
+                    } else {
+                        soaRecordHtml += "<p>No SOA record found</p>";
+                    }
+
+                    $(".results-container #results").html(
+                        aRecordsHtml + "<hr>" + aaaaRecordsHtml + "<hr>" + cnameHtml + "<hr>" + txtRecordsHtml +
+                        "<hr>" + nsRecordsHtml + "<hr>" + mxRecordsHtml + "<hr>" + soaRecordHtml
+                    );
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

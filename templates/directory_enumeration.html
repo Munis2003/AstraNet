@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='directory_enumeration.css') }}">
+    <link rel="stylesheet" type="text/css" href="/static/directory_enumeration.css">
+    <title>Directory Enumeration</title>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo" style="padding: 0px 10px 0px 210px;">
+            <h2>AstraNet</h2>
+        </div>
+        <ul style="padding-top: 0px;padding-left: 500px;padding-right: 0px;padding-bottom: 0px;">
+            <li><a href="/">Home</a></li>
+            <li><a href="dns-lookup">DNS Lookup</a></li>
+            <li><a href="whois-lookup">WHOIS Lookup</a></li>
+            <li><a href="port-scan">Port Scanner</a></li>
+            <li><a href="directory-enumeration">Directory Enumeration</a></li>
+            <li><a href="subdomain-finder">Subdomain Finder</a></li>
+        </ul>
+    </nav>
+
+    <div id="loading-overlay">
+        <div id="loading-spinner"></div>
+    </div>
+
+    <div class="container">
+        <h2 class="focus-in-contract">Directory Enumeration</h2>
+        <h3 class="text-focus-in">Unlocking Website Secrets: Explore with Directory Enumeration</h3>
+        <form method="post" action="{{ url_for('directory_enumeration') }}" id="directoryForm">
+            <input type="text" id="url" name="url" placeholder="Enter URL" required>
+            <button type="submit">
+                <span>Scan</span>
+              </button>
+        </form>
+    </div>
+
+    <div class="about-container">
+        <h3>About Directory Enumeration</h3>
+        <p>
+            Our Directory Enumeration tool for our website is a simple and powerful tool to discover the directories and
+            files of any website. You can enter any domain name or URL and choose the wordlist and the options to scan.
+            The tool will display the directories and files that are accessible on the website.
+        </p>
+    </div>
+
+    <div class="result-container">
+        <div id="resultsSection" style="display: none;">
+            {% if dir_enum_result %}
+            <h3>Directory Enumeration Result:</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th class="url-row">URL with Directory</th>
+                        <th class="status-row">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for directory, status in dir_enum_result.items() %}
+                    <tr>
+                        <td class="url-cell">
+                            <a href="{{ data.url }}/{{ directory }}" target="_blank">{{ data.url }}/{{ directory }}</a>
+                        </td>
+                        <td class="status-cell">{{ status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+       document.getElementById('directoryForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    // Show loading spinner when the form is submitted
+    console.log('Form submitted - Showing loading spinner');
+    showLoadingSpinner();
+
+    fetch(this.action, {
+        method: this.method,
+        body: new FormData(this),
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Hide loading spinner after the fetch is complete
+            console.log('Fetch successful - Hiding loading spinner');
+            hideLoadingSpinner();
+
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'block';
+
+            const resultTable = document.createElement('table');
+            resultTable.classList.add('styled-table'); // Add the 'styled-table' class to the table
+
+            const tableHeader = resultTable.createTHead();
+            const headerRow = tableHeader.insertRow(0);
+            const headerCell1 = headerRow.insertCell(0);
+            const headerCell2 = headerRow.insertCell(1);
+            headerCell1.textContent = 'URL with Directory';
+            headerCell2.textContent = 'Status';
+
+            Object.entries(data.directory_results).forEach(([directory, status]) => {
+                const row = resultTable.insertRow(-1);
+
+                const url = new URL(data.url);
+                url.pathname += directory;
+
+                const cell1 = row.insertCell(0);
+                const link = document.createElement('a');
+                link.href = url.href;
+                link.textContent = url.href;
+                cell1.appendChild(link);
+
+                const cell2 = row.insertCell(1);
+                cell2.textContent = status;
+            });
+
+            resultsSection.innerHTML = '';
+            resultsSection.appendChild(resultTable);
+        })
+        .catch(error => {
+            // Hide loading spinner if there is an error
+            console.error('Error:', error);
+            console.log('Error occurred - Hiding loading spinner');
+            hideLoadingSpinner();
+        });
+});
+
+// Function to show loading spinner
+function showLoadingSpinner() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+}
+
+// Function to hide loading spinner
+function hideLoadingSpinner() {
+    document.getElementById('loading-overlay').style.display = 'none';
+}
+
+    </script>
+    
+
+</body>
+
+</html>

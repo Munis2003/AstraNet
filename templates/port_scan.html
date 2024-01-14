@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Basic metadata for character set and viewport settings -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Title of the web page -->
+    <title>Port Scanner</title>
+
+    <!-- External JS Library: jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- External Font Stylesheets: Google Fonts and Fontshare -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@1,900,700,500,301,300,501,401,901,400,2&display=swap"
+        rel="stylesheet">
+
+    <!-- Local Stylesheet links. One uses Flask's URL template and the other uses a direct path -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='port_scan.css') }}">
+    <link rel="stylesheet" href="/static/port_scan.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo" style="padding: 0px 10px 0px 210px;">
+            <h2>AstraNet</h2>
+        </div>
+        <ul style="padding-top: 0px;padding-left: 500px;padding-right: 0px;padding-bottom: 0px;">
+            <li><a href="/">Home</a></li>
+            <li><a href="dns-lookup">DNS Lookup</a></li>
+            <li><a href="whois-lookup">WHOIS Lookup</a></li>
+            <li><a href="port-scan">Port Scanner</a></li>
+            <li><a href="directory-enumeration">Directory Enumeration</a></li>
+            <li><a href="subdomain-finder">Subdomain Finder</a></li>
+        </ul>
+    </nav>
+
+    <div id="loading-overlay">
+        <div id="loading-spinner"></div>
+    </div>
+
+    <div class="container">
+        <h2 class="focus-in-contract">Port Scanner</h2>
+        <h3 class="text-focus-in">A simple and powerful tool to scan the ports of any website or server</h3>
+        <form id="scanForm">
+
+            <div class="form-group">
+                <label for="target">Enter Target:</label>
+                <input type="text" class="form-control" id="target" name="target" placeholder="IP or Domain" required>
+            </div>
+
+            <div class="inline-group">
+                <div class="form-group">
+                    <label for="startPort">Start Port:</label>
+                    <input type="number" class="form-control small-input" id="startPort" name="startPort" placeholder="Start Port" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="endPort">End Port:</label>
+                    <input type="number" class="form-control small-input" id="endPort" name="endPort" placeholder="End Port" value="1024">
+                </div>
+            </div>
+
+            <button type="submit">
+                <span>Scan</span>
+              </button>
+        </form>
+
+    </div>
+
+    <div class="about-container">
+
+        <h3>About Port Scanner</h3>
+        <p>
+            Our Port Scanner tool for our website is a simple and powerful tool to scan the ports of any website or server. You can enter any IP address or domain name and choose the port range and the protocol (TCP or UDP) to scan. The tool will display the port status (open, closed, or filtered), the service name, and the version of the service running on each port.
+        </p>
+    </div>
+
+    <div class="result-container">
+
+        <!-- Results table, initially hidden -->
+        <table id="resultsTable" style="display:none;">
+            <h3>Open Ports :</h3>
+            <thead>
+                <tr>
+                    <th>PORT</th>
+                    <th>STATE</th>
+                    <th>SERVICE</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- Display guessed OS from the scan -->
+        <p id="osGuess"><b>Operating System : </b> Unknown</p>
+    </div>
+
+    <!-- Local JS for controlling the functionality of the page -->
+    <script src="/static/scripts.js"></script>
+
+    <script>
+        // Function to show loading spinner
+        function showLoadingSpinner() {
+            $("#loading-overlay").css("display", "flex");
+        }
+
+        // Function to hide loading spinner
+        function hideLoadingSpinner() {
+            $("#loading-overlay").css("display", "none");
+        }
+
+        document.getElementById('scanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Show loading spinner when the form is submitted
+            showLoadingSpinner();
+
+            // Your existing code for port scanning goes here
+
+            // Simulating a delay to show the loading spinner for demonstration purposes
+            setTimeout(function () {
+                // Hide loading spinner after the scanning is complete
+                hideLoadingSpinner();
+            }, 10500); // Adjust this delay as needed
+        });
+    </script>
+</body>
+
+</html>

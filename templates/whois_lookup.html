@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHOIS Lookup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='whois_lookup.css') }}">
+    <link rel="stylesheet" type="text/css" href="/static/whois_lookup.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo" style="padding: 0px 10px 0px 210px;">
+            <h2>AstraNet</h2>
+        </div>
+        <ul style="padding-top: 0px;padding-left: 500px;padding-right: 0px;padding-bottom: 0px;">
+            <li><a href="/">Home</a></li>
+            <li><a href="dns-lookup">DNS Lookup</a></li>
+            <li><a href="whois-lookup">WHOIS Lookup</a></li>
+            <li><a href="port-scan">Port Scanner</a></li>
+            <li><a href="directory-enumeration">Directory Enumeration</a></li>
+            <li><a href="subdomain-finder">Subdomain Finder</a></li>
+        </ul>
+    </nav>
+
+    <div id="loading-overlay">
+        <div id="loading-spinner"></div>
+    </div>
+
+    <div class="container">
+        <h1 class="focus-in-contract">WHOIS Lookup</h1>
+        <h3 class="text-focus-in">A simple and reliable tool to check the registration details of any website</h3>
+        <div class="form-container">
+            <form id="whoisLookupForm">
+                <input type="text" id="domain" name="domain" placeholder="Enter Domain Name or IP Address" required>
+                <button type="submit">
+                    <span>Lookup</span>
+                  </button>
+            </form>
+        </div>
+    </div>
+    <div class="about-container">
+        <h3>About WHOIS lookup</h3>
+        <p>Our WHOIS Lookup tool is a powerful and easy-to-use resource for retrieving essential information about
+            domain names and IP addresses. Whether you're a website owner, IT professional, or simply curious about a
+            particular web address, our tool provides quick access to crucial domain data.</p>
+    </div>
+    <div class="result-container">
+        <div id="results" class="results-table">
+            <!-- WHOIS data will be displayed here -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Function to show loading spinner
+        function showLoadingSpinner() {
+            $("#loading-overlay").css("display", "flex");
+        }
+
+        // Function to hide loading spinner
+        function hideLoadingSpinner() {
+            $("#loading-overlay").css("display", "none");
+        }
+
+        document.getElementById('whoisLookupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const domain = document.getElementById('domain').value;
+
+            // Show loading spinner when the form is submitted
+            showLoadingSpinner();
+
+            // Make an API request to fetch WHOIS data for the entered domain
+            fetch('/whois-lookup', {
+                method: 'POST',
+                body: new URLSearchParams({ domain }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading spinner after receiving the response
+                    hideLoadingSpinner();
+
+                    // Process and display the WHOIS data
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = ''; // Clear previous content
+
+                    const table = document.createElement('table');
+                    table.classList.add("styled-table");
+
+                    for (const key in data.whois_info) {
+                        if (data.whois_info[key] !== null) {
+                            const row = document.createElement('tr');
+
+                            const th = document.createElement('th');
+                            th.textContent = key;
+
+                            const td = document.createElement('td');
+                            td.textContent = JSON.stringify(data.whois_info[key], null, 2);
+
+                            row.appendChild(th);
+                            row.appendChild(td);
+                            table.appendChild(row);
+                        }
+                    }
+
+                    resultsDiv.appendChild(table);
+                })
+                .catch(error => {
+                    // Handle errors, e.g., display an error message
+                    console.error('Error fetching WHOIS data:', error);
+                    hideLoadingSpinner();
+                });
+        });
+    </script>
+
+</body>
+
+</html>
